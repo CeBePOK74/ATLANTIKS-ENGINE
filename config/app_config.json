@@ -1,0 +1,7 @@
+{
+  "app_name": "Atlantiks Search Engine",
+  "default_port": 8080,
+  "dark_mode": true,
+  "active_modules": ["avito", "global_search", "tenders"],
+  "save_path": "./downloads"
+}

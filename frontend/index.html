@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Atlantiks Search System</title>
+    <style>
+        body { background-color: #0b0e14; color: #e6edf3; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; border: 1px solid #00ff00; padding: 40px; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.1); width: 450px; }
+        .status { color: #00ff00; font-family: monospace; font-size: 12px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { margin-bottom: 30px; font-size: 22px; text-align: center; color: #ffffff; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #8b949e; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 20px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #00ff00; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #00cc00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="status">● System Protected | Active</div>
+        <h1>ATLANTIKS SEARCH</h1>
+        
+        <label>Что ищем?</label>
+        <input type="text" id="query" placeholder="Например: Плитка или Ботинки">
+        
+        <label>Где ищем?</label>
+<select id="source">
+    <option value="avito">Avito (Объявления)</option>
+    <option value="ozon">Ozon (Маркетплейс)</option>
+    <option value="wb">Wildberries</option>
+    <option value="yandex">Яндекс.Маркет</option>
+    <option value="saby">Saby (Тендеры)</option>
+    <option value="global">Весь интернет (Google)</option>
+</select>
+
+        <label>Регион</label>
+        <input type="text" id="region" placeholder="Например: Удмуртия">
+
+        <button onclick="startSearch()">ЗАПУСТИТЬ ДВИГАТЕЛЬ</button>
+    </div>
+
+    <script>
+        async function startSearch() {
+            const data = {
+                query: document.getElementById('query').value,
+                source: document.getElementById('source').value,
+                region: document.getElementById('region').value
+            };
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Запрос отправлен в систему! Проверьте терминал Go.');
+                }
+            } catch (err) {
+                alert('Ошибка связи с сервером. Проверьте, запущен ли Go-файл.');
+            }
+        }
+    </script>
+</body>
+</html>
