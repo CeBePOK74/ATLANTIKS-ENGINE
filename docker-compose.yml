@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  tender-app:
+    build: .
+    restart: always
+    depends_on:
+      - tender-db
+    environment:
+      - DB_HOST=tender-db
+      - DB_USER=yuri
+      - DB_PASSWORD=atlantiks_pass
+      - DB_NAME=tender_db
+
+  tender-db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=yuri
+      - POSTGRES_PASSWORD=atlantiks_pass
+      - POSTGRES_DB=tender_db
+    ports:
+      - "5433:5432" # Пробросим на 5433, чтобы не конфликтовало с прошлым проектом
+    volumes:
+      - tender_data:/var/lib/postgresql/data
+
+volumes:
+  tender_data:

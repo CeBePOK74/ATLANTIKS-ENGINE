@@ -2,62 +2,54 @@ package main
 
 import (
 	"fmt"
-	"github.com/playwright-community/playwright-go"
+	"log"
 	"net/url"
+
+	"github.com/playwright-community/playwright-go"
 )
 
-func StartOldEngine(query string, source string, region string) {
-	fmt.Println("\n=== ЗАПУСК УНИВЕРСАЛЬНОГО ДВИЖКА ATLANTIKS ===")
-	
-	// Подготовка данных
-	safeQuery := url.QueryEscape(query) // Кодируем запрос для URL (чтобы пробелы не ломали ссылку)
+func main() {
+	StartDidEngine("Плитка", "avito", "74")
+}
+
+func StartDidEngine(query string, source string, region string) {
+	fmt.Println("\n=== ЗАПУСК УНИВЕРСАЛЬНОГО ДВИЖКА ATLANTIKS-EVOLUTION ===")
+
+	// Автоматическая установка драйвера, если его нет
+	err := playwright.Install()
+	if err != nil {
+		log.Printf("[ИНФО] Установка драйверов: %v", err)
+	}
 
 	pw, err := playwright.Run()
 	if err != nil {
-		fmt.Println("[ИНФО] Настройка драйверов...")
-		playwright.Install()
-		pw, _ = playwright.Run()
+		log.Fatalf("[ОШИБКА] Не удалось запустить Playwright: %v", err)
 	}
 
-	browser, _ := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: playwright.Bool(false),
+	browser, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
+		Headless: playwright.Bool(true),
+		Args: []string{
+			"--no-sandbox",
+			"--disable-setuid-sandbox",
+			"--disable-dev-shm-usage",
+		},
 	})
-	page, _ := browser.NewPage()
-
-	// ВЫБОР ПЛОЩАДКИ
-	var targetURL string
-	fmt.Printf("[АНАЛИЗ] Запрос: %s | Источник: %s\n", query, source)
-
-	switch source {
-	case "avito":
-		targetURL = "https://www.avito.ru/rossiya?q=" + safeQuery
-	case "wb":
-		targetURL = "https://www.wildberries.ru/catalog/0/search.aspx?search=" + safeQuery
-	case "ozon":
-		targetURL = "https://www.ozon.ru/search/?text=" + safeQuery
-	case "yandex":
-		targetURL = "https://market.yandex.ru/search?text=" + safeQuery
-	case "saby":
-		targetURL = "https://saby.ru/tenders"
-	case "global":
-		targetURL = "https://www.google.com/search?q=" + safeQuery
-	default:
-		targetURL = "https://google.com/search?q=" + safeQuery
+	if err != nil {
+		log.Fatalf("[ОШИБКА] Не удалось запустить Chromium: %v", err)
 	}
+
+	page, _ := browser.NewPage()
+	targetURL := "https://www.avito.ru/rossiya?q=" + url.QueryEscape(query)
 
 	fmt.Printf("[ПЕРЕХОД] Открываю: %s\n", targetURL)
-	page.Goto(targetURL)
-
-	// Авто-заполнение поиска для Saby (если выбран тендер)
-	if source == "saby" && query != "" {
-		fmt.Println("[ИНФО] Ввожу запрос в поиск СБИС...")
-		// Добавляем скобки к Keyboard()
-		err := page.Fill("input[type='search']", query)
-		if err == nil {
-			page.Keyboard().Press("Enter")
-		}
+	_, err = page.Goto(targetURL)
+	if err != nil {
+		fmt.Printf("[ОШИБКА] Не удалось загрузить страницу: %v\n", err)
+	} else {
+		fmt.Println("====================================================")
+		fmt.Println("Система ATLANTIKS активна. Робот успешно зашел на сайт.")
 	}
 
-	fmt.Println("====================================================")
-	fmt.Println("Система активна. Окно браузера под управлением Go.")
+	browser.Close()
+	pw.Stop()
 }
